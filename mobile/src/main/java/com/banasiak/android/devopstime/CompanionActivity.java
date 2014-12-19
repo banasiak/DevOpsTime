@@ -36,7 +36,6 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 
-
 public class CompanionActivity extends Activity {
 
     private static final String TAG = CompanionActivity.class.getSimpleName();
@@ -63,9 +62,11 @@ public class CompanionActivity extends Activity {
 
 //    private CheckBox timeCheckBox;
 
-    private CheckBox epochCheckBox;
+//    private CheckBox epochCheckBox;
 
     private CheckBox alwaysUtcCheckBox;
+
+    private CheckBox useShortCardsCheckBox;
 
     private GoogleApiClient googleApiClient = null;
 
@@ -89,9 +90,10 @@ public class CompanionActivity extends Activity {
         tzCheckBox = (CheckBox) findViewById(R.id.tzCheckBox);
         dateCheckBox = (CheckBox) findViewById(R.id.dateCheckBox);
 //        timeCheckBox = (CheckBox) findViewById(R.id.timeCheckBox);
-        epochCheckBox = (CheckBox) findViewById(R.id.epochCheckBox);
+//        epochCheckBox = (CheckBox) findViewById(R.id.epochCheckBox);
 
         alwaysUtcCheckBox = (CheckBox) findViewById(R.id.alwaysUtcCheckBox);
+        useShortCardsCheckBox = (CheckBox) findViewById(R.id.useShortCardsCheckBox);
 
         Button applyButton = (Button) findViewById(R.id.applyButton);
         Button resetButton = (Button) findViewById(R.id.resetButton);
@@ -192,12 +194,13 @@ public class CompanionActivity extends Activity {
                 .setBoolean(this, CompanionSettings.KEY_TZ_DIM, tzCheckBox.isChecked());
         CompanionSettings
                 .setBoolean(this, CompanionSettings.KEY_DATE_DIM, dateCheckBox.isChecked());
-//        Settings.setBoolean(this, WatchFaceSettings.KEY_TIME_DIM, timeCheckBox.isChecked());
-        CompanionSettings.setBoolean(this, CompanionSettings.KEY_EPOCH_SHOW,
-                epochCheckBox.isChecked());
+//        CompanionSettings.setBoolean(this, CompanionSettings.KEY_TIME_DIM, timeCheckBox.isChecked());
+//        CompanionSettings.setBoolean(this, CompanionSettings.KEY_EPOCH_SHOW, epochCheckBox.isChecked());
         CompanionSettings
                 .setBoolean(this, CompanionSettings.KEY_ALWAYS_UTC,
                         alwaysUtcCheckBox.isChecked());
+        CompanionSettings.setBoolean(this, CompanionSettings.KEY_USE_SHORT_CARDS,
+                useShortCardsCheckBox.isChecked());
     }
 
     private void loadValues() {
@@ -239,16 +242,21 @@ public class CompanionActivity extends Activity {
                 CompanionSettings.getBoolean(this, CompanionSettings.KEY_DATE_DIM,
                         CompanionSettings.KEY_DATE_DIM_DEF));
 //        timeCheckBox.setChecked(
-//                Settings.getBoolean(this, WatchFaceSettings.KEY_TIME_DIM, WatchFaceSettings.KEY_TIME_DIM_DEF));
-        epochCheckBox.setChecked(
-                CompanionSettings
-                        .getBoolean(this, CompanionSettings.KEY_EPOCH_SHOW,
-                                CompanionSettings.KEY_EPOCH_SHOW_DEF));
+//                CompanionSettings
+//                        .getBoolean(this, CompanionSettings.KEY_TIME_DIM, 
+//                                CompanionSettings.KEY_TIME_DIM_DEF));
+//        epochCheckBox.setChecked(
+//                CompanionSettings
+//                        .getBoolean(this, CompanionSettings.KEY_EPOCH_SHOW,
+//                                CompanionSettings.KEY_EPOCH_SHOW_DEF));
 
         alwaysUtcCheckBox.setChecked(
                 CompanionSettings
                         .getBoolean(this, CompanionSettings.KEY_ALWAYS_UTC,
                                 CompanionSettings.KEY_ALWAYS_UTC_DEF));
+        useShortCardsCheckBox.setChecked(CompanionSettings
+                .getBoolean(this, CompanionSettings.KEY_USE_SHORT_CARDS,
+                        CompanionSettings.KEY_USE_SHORT_CARDS_DEF));
     }
 
     private void resetValues() {
@@ -269,9 +277,10 @@ public class CompanionActivity extends Activity {
         boolean tzDim = tzCheckBox.isChecked();
         boolean dateDim = dateCheckBox.isChecked();
 //        boolean timeDim = timeCheckBox.isChecked();
-        boolean epochShow = epochCheckBox.isChecked();
+//        boolean epochDim = epochCheckBox.isChecked();
 
         boolean alwaysUtc = alwaysUtcCheckBox.isChecked();
+        boolean useShortCards = useShortCardsCheckBox.isChecked();
 
         PutDataMapRequest dataMap = PutDataMapRequest.create(CompanionSettings.PATH_WITH_FEATURE);
 
@@ -285,9 +294,10 @@ public class CompanionActivity extends Activity {
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_MARKER_DIM, markerDim);
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_TZ_DIM, tzDim);
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_DATE_DIM, dateDim);
-//        dataMap.getDataMap().putBoolean(WatchFaceSettings.KEY_TIME_DIM, timeDim);
-        dataMap.getDataMap().putBoolean(CompanionSettings.KEY_EPOCH_SHOW, epochShow);
+//        dataMap.getDataMap().putBoolean(CompanionSettings.KEY_TIME_DIM, timeDim);
+//        dataMap.getDataMap().putBoolean(CompanionSettings.KEY_EPOCH_SHOW, epochDim);
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_ALWAYS_UTC, alwaysUtc);
+        dataMap.getDataMap().putBoolean(CompanionSettings.KEY_USE_SHORT_CARDS, useShortCards);
 
         PutDataRequest request = dataMap.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi

@@ -47,7 +47,6 @@
                     android:id="@+id/clockCheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minWidth="150dp"
                     android:checked="true"
                     android:text="@string/ambient"/>
         </LinearLayout>
@@ -73,7 +72,6 @@
                     android:id="@+id/markerCheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minWidth="150dp"
                     android:checked="true"
                     android:text="@string/ambient"/>
         </LinearLayout>
@@ -99,7 +97,6 @@
                     android:id="@+id/tzCheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minWidth="150dp"
                     android:checked="false"
                     android:text="@string/ambient"/>
         </LinearLayout>
@@ -125,7 +122,6 @@
                     android:id="@+id/dateCheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minWidth="150dp"
                     android:checked="false"
                     android:text="@string/ambient"/>
         </LinearLayout>
@@ -151,7 +147,6 @@
                     android:id="@+id/timeCheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minWidth="150dp"
                     android:checked="false"
                     android:text="@string/ambient"
                     android:enabled="false"/>
@@ -178,15 +173,16 @@
                     android:id="@+id/epochCheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minWidth="150dp"
                     android:checked="false"
-                    android:text="@string/interactive"/>
+                    android:text="@string/ambient"
+                    android:enabled="false"/>
         </LinearLayout>
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:paddingBottom="16dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="20dp"
                 android:orientation="vertical">
             <CheckBox
                     android:id="@+id/alwaysUtcCheckBox"
@@ -194,21 +190,32 @@
                     android:layout_height="wrap_content"
                     android:checked="false"
                     android:text="@string/always_show_utc"/>
+            <CheckBox
+                    android:id="@+id/useShortCardsCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/use_short_cards"/>
         </LinearLayout>
-        <Button
-                android:id="@+id/applyButton"
+        <LinearLayout 
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="12dp"
-                android:text="@string/apply"/>
-        <Button
-                android:id="@+id/resetButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="12dp"
-                android:text="@string/reset"/>
+                android:orientation="horizontal">
+            <Button
+                    android:id="@+id/applyButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/apply"/>
+            <Button
+                    android:id="@+id/resetButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/reset"/>
+        </LinearLayout>
     </LinearLayout>
-
 </ScrollView>

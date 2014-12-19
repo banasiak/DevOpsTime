@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">DevOps Time</string>
-    <string name="epoch">Epoch: </string>
+    <string name="epoch">Epoch:</string>
 </resources>

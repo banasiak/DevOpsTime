@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package com.banasiak.android.devopstime;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -80,7 +79,7 @@ public class WatchFaceService extends CanvasWatchFaceService {
 
         static final int MSG_UPDATE_TIME = 0;
 
-        // How often {@link #mUpdateTimeHandler} ticks in milliseconds.
+        // How often mUpdateTimeHandler ticks in milliseconds.
         long mInteractiveUpdateRateMs = NORMAL_UPDATE_RATE_MS;
 
         // Handler to update the time periodically in interactive mode.
@@ -128,6 +127,14 @@ public class WatchFaceService extends CanvasWatchFaceService {
 
         private static final String TIMESTAMP_FORMAT = "HH:mm:ss Z";
 
+        Date mDate;
+
+        Rect cardPeekRectangle = new Rect(0, 0, 0, 0);
+
+        WatchFaceStyle shortCards;
+
+        WatchFaceStyle variableCards;
+
         SimpleDateFormat timeSdf;
 
         SimpleDateFormat periodSdf;
@@ -168,21 +175,19 @@ public class WatchFaceService extends CanvasWatchFaceService {
 
         float mPadding;
 
-        Date mDate;
+        boolean clockDim;
 
-        boolean clockDim = true;
+        boolean periodDim;
 
-        boolean periodDim = true;
+        boolean tzDim;
 
-        boolean tzDim = false;
+        boolean dateDim;
 
-        boolean dateDim = false;
+        boolean timeDim;
 
-        boolean timeDim = false;
+        boolean epochDim;
 
-        boolean epochShow = true;
-
-        boolean alwaysUtc = true;
+        boolean alwaysUtc;
 
         boolean mIsMute;
 
@@ -207,7 +212,23 @@ public class WatchFaceService extends CanvasWatchFaceService {
             Log.d(TAG, "onCreate");
             super.onCreate(holder);
 
-            setWatchFaceStyle(new WatchFaceStyle.Builder(WatchFaceService.this)
+            // A style with variable height notification cards.  Note that setting the
+            // HotwordIndicatorGravity or StatusBarGravity to BOTTOM will force the notification 
+            // cards to be short, regardless of the CardPeekMode.
+            variableCards = new WatchFaceStyle.Builder(WatchFaceService.this)
+                    .setAmbientPeekMode(WatchFaceStyle.AMBIENT_PEEK_MODE_VISIBLE)
+                    .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
+                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
+                    .setHotwordIndicatorGravity(Gravity.TOP | Gravity.LEFT)
+                    .setPeekOpacityMode(WatchFaceStyle.PEEK_OPACITY_MODE_TRANSLUCENT)
+                    .setShowSystemUiTime(false)
+                    .setShowUnreadCountIndicator(true)
+                    .setStatusBarGravity(Gravity.TOP | Gravity.LEFT)
+                    .setViewProtection(WatchFaceStyle.PROTECT_STATUS_BAR)
+                    .build();
+
+            // A style with short height notification cards.
+            shortCards = new WatchFaceStyle.Builder(WatchFaceService.this)
                     .setAmbientPeekMode(WatchFaceStyle.AMBIENT_PEEK_MODE_VISIBLE)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
@@ -217,9 +238,18 @@ public class WatchFaceService extends CanvasWatchFaceService {
                     .setShowUnreadCountIndicator(true)
                     .setStatusBarGravity(Gravity.TOP | Gravity.LEFT)
                     .setViewProtection(WatchFaceStyle.PROTECT_STATUS_BAR)
-                    .build());
+                    .build();
 
-            Resources resources = WatchFaceService.this.getResources();
+            boolean useShortCards = WatchFaceUtil
+                    .getBoolean(getApplicationContext(), WatchFaceUtil.KEY_USE_SHORT_CARDS,
+                            WatchFaceUtil.KEY_USE_SHORT_CARDS_DEF);
+            if (useShortCards) {
+                Log.d(TAG, "Using short notification cards");
+                setWatchFaceStyle(shortCards);
+            } else {
+                Log.d(TAG, "Using variable notification cards");
+                setWatchFaceStyle(variableCards);
+            }
 
             if (DateFormat.is24HourFormat(getApplicationContext())) {
                 timeSdf = new SimpleDateFormat(TIME_FORMAT_24);
@@ -227,6 +257,7 @@ public class WatchFaceService extends CanvasWatchFaceService {
                 timeSdf = new SimpleDateFormat(TIME_FORMAT_12);
             }
 
+            //date formatters
             periodSdf = new SimpleDateFormat(PERIOD_FORMAT);
             timezoneSdf = new SimpleDateFormat(TIMEZONE_FORMAT);
             dateStampSdf = new SimpleDateFormat(DATESTAMP_FORMAT);
@@ -241,26 +272,49 @@ public class WatchFaceService extends CanvasWatchFaceService {
             mTimestampPaint = createTextPaint(mAmbientTextColor);
             mEpochPaint = createTextPaint(mAmbientTextColor);
 
-            // initial setup, can be overridden by companion app
-            float clockSize = resources.getDimension(R.dimen.clock_size);
-            float markerSize = resources.getDimension(R.dimen.marker_size);
-            float timezoneSize = resources.getDimension(R.dimen.timezone_size);
-            float datestampSize = resources.getDimension(R.dimen.datestamp_size);
-            float timestampSize = resources.getDimension(R.dimen.timestamp_size);
-            float epochSize = resources.getDimension(R.dimen.epoch_size);
+            // initial setup, load persisted or default values, can be overridden by companion app
+            Context context = getApplicationContext();
+            float clockSize = WatchFaceUtil.getInt(context, WatchFaceUtil.KEY_CLOCK_SIZE,
+                    WatchFaceUtil.KEY_CLOCK_SIZE_DEF);
+            float markerSize = WatchFaceUtil.getInt(context, WatchFaceUtil.KEY_MARKER_SIZE,
+                    WatchFaceUtil.KEY_MARKER_SIZE_DEF);
+            float timezoneSize = WatchFaceUtil.getInt(context, WatchFaceUtil.KEY_TZ_SIZE,
+                    WatchFaceUtil.KEY_TZ_SIZE_DEF);
+            float datestampSize = WatchFaceUtil.getInt(context, WatchFaceUtil.KEY_DATE_SIZE,
+                    WatchFaceUtil.KEY_DATE_SIZE_DEF);
+            float timestampSize = WatchFaceUtil.getInt(context, WatchFaceUtil.KEY_TIME_SIZE,
+                    WatchFaceUtil.KEY_TIME_SIZE_DEF);
+            float epochSize = WatchFaceUtil.getInt(context, WatchFaceUtil.KEY_EPOCH_SIZE,
+                    WatchFaceUtil.KEY_EPOCH_SIZE_DEF);
 
-            mClockPaint.setTextSize(clockSize);
-            mPeriodPaint.setTextSize(markerSize);
-            mTimezonePaint.setTextSize(timezoneSize);
-            mDatestampPaint.setTextSize(datestampSize);
-            mTimestampPaint.setTextSize(timestampSize);
-            mEpochPaint.setTextSize(epochSize);
+            // set the text sizes scaled according to the screen density
+            float density = getResources().getDisplayMetrics().density;
+            mClockPaint.setTextSize(clockSize * density);
+            mPeriodPaint.setTextSize(markerSize * density);
+            mTimezonePaint.setTextSize(timezoneSize * density);
+            mDatestampPaint.setTextSize(datestampSize * density);
+            mTimestampPaint.setTextSize(timestampSize * density);
+            mEpochPaint.setTextSize(epochSize * density);
+
+            clockDim = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_CLOCK_DIM,
+                    WatchFaceUtil.KEY_CLOCK_DIM_DEF);
+            periodDim = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_MARKER_DIM,
+                    WatchFaceUtil.KEY_MARKER_DIM_DEF);
+            tzDim = WatchFaceUtil
+                    .getBoolean(context, WatchFaceUtil.KEY_TZ_DIM, WatchFaceUtil.KEY_TZ_DIM_DEF);
+            dateDim = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_DATE_DIM,
+                    WatchFaceUtil.KEY_DATE_DIM_DEF);
+            timeDim = false;
+            epochDim = false;
+            alwaysUtc = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_ALWAYS_UTC,
+                    WatchFaceUtil.KEY_ALWAYS_UTC_DEF);
 
             mDate = new Date();
         }
 
         @Override
         public void onDestroy() {
+            Log.d(TAG, "onDestroy");
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
             super.onDestroy();
         }
@@ -378,6 +432,16 @@ public class WatchFaceService extends CanvasWatchFaceService {
         }
 
         @Override
+        public void onPeekCardPositionUpdate(Rect rect) {
+            super.onPeekCardPositionUpdate(rect);
+            Log.d(TAG, "onPeekCardPositionUpdate: " + rect);
+
+            cardPeekRectangle = rect;
+
+            invalidate();
+        }
+
+        @Override
         public void onAmbientModeChanged(boolean inAmbientMode) {
             super.onAmbientModeChanged(inAmbientMode);
             Log.d(TAG, "onAmbientModeChanged: " + inAmbientMode);
@@ -459,8 +523,8 @@ public class WatchFaceService extends CanvasWatchFaceService {
             String timezoneString = timezoneSdf.format(mDate);
             String datestampString = dateStampSdf.format(mDate);
             String timestampString = timeStampSdf.format(mDate);
-            String epochString = getResources().getString(R.string.epoch) + " " + String
-                    .valueOf(mDate.getTime() / 1000);
+            String epochString = getResources().getString(R.string.epoch) + " " + String.valueOf(
+                    mDate.getTime() / 1000);
 
             float xClock, yClock;
             float xPeriod, yPeriod;
@@ -494,7 +558,7 @@ public class WatchFaceService extends CanvasWatchFaceService {
             // calculate offsets
             if (mIsRound) {
                 // round offsets == align center
-                xClock = width / 2 - timezoneBounds.width() / 2;
+                xClock = (width / 2) - (Math.max(periodBounds.width(), timezoneBounds.width()) / 2);
                 yClock = 0 + mYOffset + clockBounds.height();
 
                 xPeriod = xClock + clockBounds.width() / 2 + mPadding + periodBounds.width() / 2;
@@ -527,7 +591,8 @@ public class WatchFaceService extends CanvasWatchFaceService {
                         (clockBounds.height() / 2 - timezoneBounds.height()) / 2) + timezoneBounds
                         .height();
 
-                xClock = xTimezone - mPadding - mTimezonePaint.measureText(timezoneString);
+                xClock = xTimezone - mPadding - Math
+                        .max(periodBounds.width(), timezoneBounds.width());
                 yClock = 0 + mYOffset + clockBounds.height();
 
                 xDatestamp = width - mXOffset;
@@ -540,40 +605,69 @@ public class WatchFaceService extends CanvasWatchFaceService {
                 yEpoch = yTimestamp + mPadding * 3 + epochBounds.height();
             }
 
+//            Log.d(TAG, "xClock=" + xClock + ", yClock=" + yClock);
+//            Log.d(TAG, "xPeriod=" + xPeriod + ", yPeriod=" + yPeriod);
+//            Log.d(TAG, "xTimezone=" + xTimezone + ", yTimezone=" + yTimezone);
+//            Log.d(TAG, "xDatestamp=" + xDatestamp + ", yDatestamp=" + yDatestamp);
+//            Log.d(TAG, "xTimestamp=" + xTimestamp + ", yTimestamp=" + yTimestamp);
+//            Log.d(TAG, "xEpoch=" + xEpoch + ", yEpoch=" + yEpoch);
+
+            if (cardPeekRectangle.top == 0) {
+                cardPeekRectangle.top = height;
+            }
+
             if (isInAmbientMode()) {
                 // draw these when ambient
                 if (clockDim) {
-                    canvas.drawText(clockString, xClock, yClock, mClockPaint);
+                    if (yClock < cardPeekRectangle.top) {
+                        canvas.drawText(clockString, xClock, yClock, mClockPaint);
+                    }
                 }
                 if (periodDim) {
                     if (!DateFormat.is24HourFormat(getApplicationContext())) {
-                        canvas.drawText(periodString, xPeriod, yPeriod, mPeriodPaint);
+                        if (yPeriod < cardPeekRectangle.top) {
+                            canvas.drawText(periodString, xPeriod, yPeriod, mPeriodPaint);
+                        }
                     }
                 }
                 if (tzDim) {
-                    canvas.drawText(timezoneString, xTimezone, yTimezone, mTimezonePaint);
+                    if (yTimezone < cardPeekRectangle.top) {
+                        canvas.drawText(timezoneString, xTimezone, yTimezone, mTimezonePaint);
+                    }
                 }
                 if (dateDim) {
-                    canvas.drawText(datestampString, xDatestamp, yDatestamp, mDatestampPaint);
+                    if (yDatestamp < cardPeekRectangle.top) {
+                        canvas.drawText(datestampString, xDatestamp, yDatestamp, mDatestampPaint);
+                    }
                 }
             } else {
                 // draw these when interactive
-                canvas.drawText(clockString, xClock, yClock, mClockPaint);
-                if (!DateFormat.is24HourFormat(getApplicationContext())) {
-                    canvas.drawText(periodString, xPeriod, yPeriod, mPeriodPaint);
+                if (yClock < cardPeekRectangle.top) {
+                    canvas.drawText(clockString, xClock, yClock, mClockPaint);
                 }
-                canvas.drawText(timezoneString, xTimezone, yTimezone, mTimezonePaint);
-                canvas.drawText(datestampString, xDatestamp, yDatestamp, mDatestampPaint);
-                canvas.drawText(timestampString, xTimestamp, yTimestamp, mTimestampPaint);
-                if (epochShow) {
+                if (!DateFormat.is24HourFormat(getApplicationContext())) {
+                    if (yPeriod < cardPeekRectangle.top) {
+                        canvas.drawText(periodString, xPeriod, yPeriod, mPeriodPaint);
+                    }
+                }
+                if (yTimezone < cardPeekRectangle.top) {
+                    canvas.drawText(timezoneString, xTimezone, yTimezone, mTimezonePaint);
+                }
+                if (yDatestamp < cardPeekRectangle.top) {
+                    canvas.drawText(datestampString, xDatestamp, yDatestamp, mDatestampPaint);
+                }
+                if (yTimestamp < cardPeekRectangle.top) {
+                    canvas.drawText(timestampString, xTimestamp, yTimestamp, mTimestampPaint);
+                }
+                if (yEpoch < cardPeekRectangle.top) {
                     canvas.drawText(epochString, xEpoch, yEpoch, mEpochPaint);
                 }
             }
 
         }
 
-        // Starts the {@link #mUpdateTimeHandler} timer if it should be running and isn't currently
-        // stops it if it shouldn't be running but currently is.
+        // Starts the mUpdateTimeHandler timer if it should be running and isn't currently stops it
+        // if it shouldn't be running but currently is.
         private void updateTimer() {
             Log.d(TAG, "updateTimer");
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
@@ -582,8 +676,8 @@ public class WatchFaceService extends CanvasWatchFaceService {
             }
         }
 
-        // Returns whether the {@link #mUpdateTimeHandler} timer should be running. The timer
-        // should only run when we're visible and in interactive mode.
+        // Returns whether the mUpdateTimeHandler timer should be running. The timer should only
+        // run when we're visible and in interactive mode.
         private boolean shouldTimerBeRunning() {
             return isVisible() && !isInAmbientMode();
         }
@@ -594,7 +688,9 @@ public class WatchFaceService extends CanvasWatchFaceService {
                         @Override
                         public void onConfigDataMapFetched(DataMap startupConfig) {
                             // use the newly received settings
-                            updateUiForConfigDataMap(startupConfig);
+                            if (startupConfig != null && !startupConfig.isEmpty()) {
+                                updateUiForConfigDataMap(startupConfig);
+                            }
                         }
                     }
             );
@@ -616,7 +712,9 @@ public class WatchFaceService extends CanvasWatchFaceService {
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
                     DataMap config = dataMapItem.getDataMap();
                     Log.d(TAG, "Config DataItem updated:" + config);
-                    updateUiForConfigDataMap(config);
+                    if (config != null && !config.isEmpty()) {
+                        updateUiForConfigDataMap(config);
+                    }
                 }
             } finally {
                 dataEvents.close();
@@ -626,28 +724,20 @@ public class WatchFaceService extends CanvasWatchFaceService {
         private void updateUiForConfigDataMap(final DataMap dataMap) {
             Log.d(TAG, "updateUiForConfigDataMap: " + dataMap);
 
-            float density = getResources().getDisplayMetrics().density;
+            // font sizes
+            int clockSize = dataMap
+                    .getInt(WatchFaceUtil.KEY_CLOCK_SIZE, WatchFaceUtil.KEY_CLOCK_SIZE_DEF);
+            int periodSize = dataMap
+                    .getInt(WatchFaceUtil.KEY_MARKER_SIZE, WatchFaceUtil.KEY_MARKER_SIZE_DEF);
+            int tzSize = dataMap.getInt(WatchFaceUtil.KEY_TZ_SIZE, WatchFaceUtil.KEY_TZ_SIZE_DEF);
+            int dateSize = dataMap
+                    .getInt(WatchFaceUtil.KEY_DATE_SIZE, WatchFaceUtil.KEY_DATE_SIZE_DEF);
+            int timeSize = dataMap
+                    .getInt(WatchFaceUtil.KEY_TIME_SIZE, WatchFaceUtil.KEY_TIME_SIZE_DEF);
+            int epochSize = dataMap
+                    .getInt(WatchFaceUtil.KEY_EPOCH_SIZE, WatchFaceUtil.KEY_EPOCH_SIZE_DEF);
 
-            // font sizes scaled appropriately based on screen density
-            float clockSize =
-                    dataMap.getInt(WatchFaceUtil.KEY_CLOCK_SIZE, WatchFaceUtil.KEY_CLOCK_SIZE_DEF)
-                            * density;
-            float periodSize =
-                    dataMap.getInt(WatchFaceUtil.KEY_MARKER_SIZE, WatchFaceUtil.KEY_MARKER_SIZE_DEF)
-                            * density;
-            float tzSize = dataMap.getInt(WatchFaceUtil.KEY_TZ_SIZE, WatchFaceUtil.KEY_TZ_SIZE_DEF)
-                    * density;
-            float dateSize =
-                    dataMap.getInt(WatchFaceUtil.KEY_DATE_SIZE, WatchFaceUtil.KEY_DATE_SIZE_DEF)
-                            * density;
-            float timeSize =
-                    dataMap.getInt(WatchFaceUtil.KEY_TIME_SIZE, WatchFaceUtil.KEY_TIME_SIZE_DEF)
-                            * density;
-            float epochSize =
-                    dataMap.getInt(WatchFaceUtil.KEY_EPOCH_SIZE, WatchFaceUtil.KEY_EPOCH_SIZE_DEF)
-                            * density;
-
-            // visability flags
+            // visibility flags
             clockDim = dataMap
                     .getBoolean(WatchFaceUtil.KEY_CLOCK_DIM, WatchFaceUtil.KEY_CLOCK_DIM_DEF);
             periodDim = dataMap
@@ -656,18 +746,31 @@ public class WatchFaceService extends CanvasWatchFaceService {
             dateDim = dataMap
                     .getBoolean(WatchFaceUtil.KEY_DATE_DIM, WatchFaceUtil.KEY_DATE_DIM_DEF);
             timeDim = false;
-            epochShow = dataMap
-                    .getBoolean(WatchFaceUtil.KEY_EPOCH_SHOW, WatchFaceUtil.KEY_EPOCH_SHOW_DEF);
+            epochDim = false;
             alwaysUtc = dataMap
                     .getBoolean(WatchFaceUtil.KEY_ALWAYS_UTC, WatchFaceUtil.KEY_ALWAYS_UTC_DEF);
 
-            // set the text sizes accordingly
-            mClockPaint.setTextSize(clockSize);
-            mPeriodPaint.setTextSize(periodSize);
-            mTimezonePaint.setTextSize(tzSize);
-            mDatestampPaint.setTextSize(dateSize);
-            mTimestampPaint.setTextSize(timeSize);
-            mEpochPaint.setTextSize(epochSize);
+            // notification card style
+            boolean useShortCards = dataMap.getBoolean(WatchFaceUtil.KEY_USE_SHORT_CARDS,
+                    WatchFaceUtil.KEY_USE_SHORT_CARDS_DEF);
+
+            // update the style accordingly
+            if (useShortCards) {
+                Log.d(TAG, "Using short notification cards");
+                setWatchFaceStyle(shortCards);
+            } else {
+                Log.d(TAG, "Using variable notification cards");
+                setWatchFaceStyle(variableCards);
+            }
+
+            // set the text sizes scaled according to the screen density
+            float density = getResources().getDisplayMetrics().density;
+            mClockPaint.setTextSize(clockSize * density);
+            mPeriodPaint.setTextSize(periodSize * density);
+            mTimezonePaint.setTextSize(tzSize * density);
+            mDatestampPaint.setTextSize(dateSize * density);
+            mTimestampPaint.setTextSize(timeSize * density);
+            mEpochPaint.setTextSize(epochSize * density);
 
             // show the timestamp in UTC timezone if appropriate
             if (alwaysUtc) {
@@ -678,6 +781,32 @@ public class WatchFaceService extends CanvasWatchFaceService {
 
             // redraw the canvas
             invalidate();
+
+            // persist these values for the next time the watch face is instantiated
+            saveConfigValues(clockSize, periodSize, tzSize, dateSize, timeSize, epochSize,
+                    useShortCards);
+        }
+
+        private void saveConfigValues(int clockSize, int periodSize, int tzSize, int dateSize,
+                int timeSize, int epochSize, boolean useShortCards) {
+            Log.d(TAG, "saveConfigValues");
+
+            Context context = getApplicationContext();
+
+            WatchFaceUtil.setInt(context, WatchFaceUtil.KEY_CLOCK_SIZE, clockSize);
+            WatchFaceUtil.setInt(context, WatchFaceUtil.KEY_MARKER_SIZE, periodSize);
+            WatchFaceUtil.setInt(context, WatchFaceUtil.KEY_TZ_SIZE, tzSize);
+            WatchFaceUtil.setInt(context, WatchFaceUtil.KEY_DATE_SIZE, dateSize);
+            WatchFaceUtil.setInt(context, WatchFaceUtil.KEY_TIME_SIZE, timeSize);
+            WatchFaceUtil.setInt(context, WatchFaceUtil.KEY_EPOCH_SIZE, epochSize);
+
+            WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_CLOCK_DIM, clockDim);
+            WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_MARKER_DIM, periodDim);
+            WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_TZ_DIM, tzDim);
+            WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_DATE_DIM, dateDim);
+            WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_ALWAYS_UTC, alwaysUtc);
+
+            WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_USE_SHORT_CARDS, useShortCards);
         }
 
         @Override

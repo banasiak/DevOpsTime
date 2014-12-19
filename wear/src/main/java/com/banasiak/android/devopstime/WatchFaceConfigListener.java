@@ -29,11 +29,8 @@ import android.util.Log;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * A {@link com.google.android.gms.wearable.WearableListenerService} listening for {@link
- * WatchFaceService} config messages and updating the config {@link com.google.android.gms.wearable.DataItem}
- * accordingly.
- */
+// A WearableListenerService listening for WatchFaceService config messages and updating the config
+// DataItem accordingly.
 public class WatchFaceConfigListener extends WearableListenerService
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 

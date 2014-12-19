@@ -27,7 +27,10 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public final class WatchFaceUtil {
@@ -78,16 +81,51 @@ public final class WatchFaceUtil {
 
     public static final int KEY_EPOCH_SIZE_DEF = 18;
 
-    public static final String KEY_EPOCH_SHOW = "epoch_show";
+//    public static final String KEY_EPOCH_DIM = "epoch_dim";
 
-    public static final boolean KEY_EPOCH_SHOW_DEF = true;
+//    public static final boolean KEY_EPOCH_DIM_DEF = true;
 
     public static final String KEY_ALWAYS_UTC = "always_utc";
 
     public static final boolean KEY_ALWAYS_UTC_DEF = false;
 
+    public static final String KEY_USE_SHORT_CARDS = "use_short_cards";
+
+    public static final boolean KEY_USE_SHORT_CARDS_DEF = true;
+
     public static final String PATH_WITH_FEATURE = "/DevOpsTime";
 
+
+    public static int getInt(final Context context, final String key, final int defaultValue) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getInt(key, defaultValue);
+    }
+
+    public static boolean getBoolean(final Context context, final String key,
+            final boolean defaultValue) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(key, defaultValue);
+    }
+
+    public static void setInt(final Context context, final String key, final int value) {
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(key, value);
+        editor.commit();
+    }
+
+    public static void setBoolean(final Context context, final String key, final boolean value) {
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean(key, value);
+        editor.commit();
+    }
+
+    public static void resetAllPrefs(final Context context) {
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = settings.edit();
+
+        editor.clear();
+        editor.commit();
+    }
 
     // Callback interface to perform an action with the current config DataMap
     public interface FetchConfigDataMapCallback {
