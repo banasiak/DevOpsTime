@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="clock_size">50sp</dimen>
+    <dimen name="marker_size">16sp</dimen>
+    <dimen name="timezone_size">16sp</dimen>
+    <dimen name="datestamp_size">18sp</dimen>
+    <dimen name="timestamp_size">18sp</dimen>
+    <dimen name="epoch_size">18sp</dimen>
+    <dimen name="x_offset">10sp</dimen>
+    <dimen name="y_offset">10sp</dimen>
+    <dimen name="x_offset_round">10sp</dimen>
+    <dimen name="y_offset_round">30sp</dimen>
+    <dimen name="padding">5sp</dimen>
+</resources>

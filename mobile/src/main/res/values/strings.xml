@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DevOps Time</string>
+    <string name="subtitle">RFC 2822 Timestamps for Android Wear</string>
+    <string name="clock">Clock</string>
+    <string name="marker">AM/PM</string>
+    <string name="timezone">TZ</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="epoch">Epoch</string>
+    <string name="ambient">show ambient</string>
+    <string name="interactive">show interactive</string>
+    <string name="always_show_utc">always show timestamp in UTC</string>
+    <string name="apply">Apply Changes</string>
+    <string name="reset">Reset to Default</string>
+</resources>

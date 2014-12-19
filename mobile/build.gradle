@@ -1,0 +1,29 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
+
+    defaultConfig {
+        applicationId "com.banasiak.android.devopstime"
+        minSdkVersion 18
+        targetSdkVersion 21
+        versionCode 10
+        versionName "3.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile "com.google.android.support:wearable:1.1.0"
+    compile 'com.google.android.gms:play-services-wearable:6.5.87'
+    compile 'com.android.support:support-v13:21.0.3'
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    wearApp project(':wear')
+}
