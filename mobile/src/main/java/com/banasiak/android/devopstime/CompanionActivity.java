@@ -60,9 +60,9 @@ public class CompanionActivity extends Activity {
 
     private CheckBox dateCheckBox;
 
-//    private CheckBox timeCheckBox;
+    private CheckBox timeCheckBox;
 
-//    private CheckBox epochCheckBox;
+    private CheckBox epochCheckBox;
 
     private CheckBox alwaysUtcCheckBox;
 
@@ -89,8 +89,8 @@ public class CompanionActivity extends Activity {
         markerCheckBox = (CheckBox) findViewById(R.id.markerCheckBox);
         tzCheckBox = (CheckBox) findViewById(R.id.tzCheckBox);
         dateCheckBox = (CheckBox) findViewById(R.id.dateCheckBox);
-//        timeCheckBox = (CheckBox) findViewById(R.id.timeCheckBox);
-//        epochCheckBox = (CheckBox) findViewById(R.id.epochCheckBox);
+        timeCheckBox = (CheckBox) findViewById(R.id.timeCheckBox);
+        epochCheckBox = (CheckBox) findViewById(R.id.epochCheckBox);
 
         alwaysUtcCheckBox = (CheckBox) findViewById(R.id.alwaysUtcCheckBox);
         useShortCardsCheckBox = (CheckBox) findViewById(R.id.useShortCardsCheckBox);
@@ -194,8 +194,10 @@ public class CompanionActivity extends Activity {
                 .setBoolean(this, CompanionSettings.KEY_TZ_DIM, tzCheckBox.isChecked());
         CompanionSettings
                 .setBoolean(this, CompanionSettings.KEY_DATE_DIM, dateCheckBox.isChecked());
-//        CompanionSettings.setBoolean(this, CompanionSettings.KEY_TIME_DIM, timeCheckBox.isChecked());
-//        CompanionSettings.setBoolean(this, CompanionSettings.KEY_EPOCH_SHOW, epochCheckBox.isChecked());
+        CompanionSettings
+                .setBoolean(this, CompanionSettings.KEY_TIME_DIM, timeCheckBox.isChecked());
+        CompanionSettings
+                .setBoolean(this, CompanionSettings.KEY_EPOCH_DIM, epochCheckBox.isChecked());
         CompanionSettings
                 .setBoolean(this, CompanionSettings.KEY_ALWAYS_UTC,
                         alwaysUtcCheckBox.isChecked());
@@ -241,14 +243,14 @@ public class CompanionActivity extends Activity {
         dateCheckBox.setChecked(
                 CompanionSettings.getBoolean(this, CompanionSettings.KEY_DATE_DIM,
                         CompanionSettings.KEY_DATE_DIM_DEF));
-//        timeCheckBox.setChecked(
-//                CompanionSettings
-//                        .getBoolean(this, CompanionSettings.KEY_TIME_DIM, 
-//                                CompanionSettings.KEY_TIME_DIM_DEF));
-//        epochCheckBox.setChecked(
-//                CompanionSettings
-//                        .getBoolean(this, CompanionSettings.KEY_EPOCH_SHOW,
-//                                CompanionSettings.KEY_EPOCH_SHOW_DEF));
+        timeCheckBox.setChecked(
+                CompanionSettings
+                        .getBoolean(this, CompanionSettings.KEY_TIME_DIM,
+                                CompanionSettings.KEY_TIME_DIM_DEF));
+        epochCheckBox.setChecked(
+                CompanionSettings
+                        .getBoolean(this, CompanionSettings.KEY_EPOCH_DIM,
+                                CompanionSettings.KEY_EPOCH_SHOW_DEF));
 
         alwaysUtcCheckBox.setChecked(
                 CompanionSettings
@@ -276,8 +278,8 @@ public class CompanionActivity extends Activity {
         boolean markerDim = markerCheckBox.isChecked();
         boolean tzDim = tzCheckBox.isChecked();
         boolean dateDim = dateCheckBox.isChecked();
-//        boolean timeDim = timeCheckBox.isChecked();
-//        boolean epochDim = epochCheckBox.isChecked();
+        boolean timeDim = timeCheckBox.isChecked();
+        boolean epochDim = epochCheckBox.isChecked();
 
         boolean alwaysUtc = alwaysUtcCheckBox.isChecked();
         boolean useShortCards = useShortCardsCheckBox.isChecked();
@@ -294,8 +296,8 @@ public class CompanionActivity extends Activity {
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_MARKER_DIM, markerDim);
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_TZ_DIM, tzDim);
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_DATE_DIM, dateDim);
-//        dataMap.getDataMap().putBoolean(CompanionSettings.KEY_TIME_DIM, timeDim);
-//        dataMap.getDataMap().putBoolean(CompanionSettings.KEY_EPOCH_SHOW, epochDim);
+        dataMap.getDataMap().putBoolean(CompanionSettings.KEY_TIME_DIM, timeDim);
+        dataMap.getDataMap().putBoolean(CompanionSettings.KEY_EPOCH_DIM, epochDim);
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_ALWAYS_UTC, alwaysUtc);
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_USE_SHORT_CARDS, useShortCards);
 

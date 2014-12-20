@@ -58,17 +58,17 @@ public class CompanionSettings {
 
     public static final int KEY_TIME_SIZE_DEF = 18;
 
-//    public static final String KEY_TIME_DIM = "time_dim";
+    public static final String KEY_TIME_DIM = "time_dim";
 
-//    public static final boolean KEY_TIME_DIM_DEF = false;
+    public static final boolean KEY_TIME_DIM_DEF = false;
 
     public static final String KEY_EPOCH_SIZE = "epoch_size";
 
     public static final int KEY_EPOCH_SIZE_DEF = 18;
 
-//    public static final String KEY_EPOCH_DIM = "epoch_dim";
+    public static final String KEY_EPOCH_DIM = "epoch_dim";
 
-//    public static final boolean KEY_EPOCH_SHOW_DEF = true;
+    public static final boolean KEY_EPOCH_SHOW_DEF = false;
 
     public static final String KEY_ALWAYS_UTC = "always_utc";
 

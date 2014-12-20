@@ -304,8 +304,10 @@ public class WatchFaceService extends CanvasWatchFaceService {
                     .getBoolean(context, WatchFaceUtil.KEY_TZ_DIM, WatchFaceUtil.KEY_TZ_DIM_DEF);
             dateDim = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_DATE_DIM,
                     WatchFaceUtil.KEY_DATE_DIM_DEF);
-            timeDim = false;
-            epochDim = false;
+            timeDim = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_TIME_DIM,
+                    WatchFaceUtil.KEY_TIME_DIM_DEF);
+            epochDim = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_EPOCH_DIM,
+                    WatchFaceUtil.KEY_EPOCH_DIM_DEF);
             alwaysUtc = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_ALWAYS_UTC,
                     WatchFaceUtil.KEY_ALWAYS_UTC_DEF);
 
@@ -640,6 +642,17 @@ public class WatchFaceService extends CanvasWatchFaceService {
                         canvas.drawText(datestampString, xDatestamp, yDatestamp, mDatestampPaint);
                     }
                 }
+                if (timeDim) {
+                    if (yTimestamp < cardPeekRectangle.top) {
+                        canvas.drawText(timestampString, xTimestamp, yTimestamp, mTimestampPaint);
+                    }
+                }
+                if (epochDim) {
+                    if (yEpoch < cardPeekRectangle.top) {
+                        canvas.drawText(epochString, xEpoch, yEpoch, mEpochPaint);
+                    }
+                }
+                
             } else {
                 // draw these when interactive
                 if (yClock < cardPeekRectangle.top) {
@@ -745,8 +758,10 @@ public class WatchFaceService extends CanvasWatchFaceService {
             tzDim = dataMap.getBoolean(WatchFaceUtil.KEY_TZ_DIM, WatchFaceUtil.KEY_TZ_DIM_DEF);
             dateDim = dataMap
                     .getBoolean(WatchFaceUtil.KEY_DATE_DIM, WatchFaceUtil.KEY_DATE_DIM_DEF);
-            timeDim = false;
-            epochDim = false;
+            timeDim = dataMap
+                    .getBoolean(WatchFaceUtil.KEY_TIME_DIM, WatchFaceUtil.KEY_TIME_DIM_DEF);
+            epochDim = dataMap
+                    .getBoolean(WatchFaceUtil.KEY_EPOCH_DIM, WatchFaceUtil.KEY_EPOCH_DIM_DEF);
             alwaysUtc = dataMap
                     .getBoolean(WatchFaceUtil.KEY_ALWAYS_UTC, WatchFaceUtil.KEY_ALWAYS_UTC_DEF);
 
@@ -804,6 +819,8 @@ public class WatchFaceService extends CanvasWatchFaceService {
             WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_MARKER_DIM, periodDim);
             WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_TZ_DIM, tzDim);
             WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_DATE_DIM, dateDim);
+            WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_TIME_DIM, timeDim);
+            WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_EPOCH_DIM, epochDim);
             WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_ALWAYS_UTC, alwaysUtc);
 
             WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_USE_SHORT_CARDS, useShortCards);
