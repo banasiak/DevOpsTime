@@ -215,31 +215,46 @@ public class WatchFaceService extends CanvasWatchFaceService {
             // A style with variable height notification cards.  Note that setting the
             // HotwordIndicatorGravity or StatusBarGravity to BOTTOM will force the notification 
             // cards to be short, regardless of the CardPeekMode.
-            variableCards = new WatchFaceStyle.Builder(WatchFaceService.this)
-                    .setAmbientPeekMode(WatchFaceStyle.AMBIENT_PEEK_MODE_VISIBLE)
+            WatchFaceStyle.Builder variableBuilder = new WatchFaceStyle.Builder(
+                    WatchFaceService.this);
+            variableBuilder.setAmbientPeekMode(WatchFaceStyle.AMBIENT_PEEK_MODE_VISIBLE)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
-                    .setHotwordIndicatorGravity(Gravity.TOP | Gravity.LEFT)
                     .setPeekOpacityMode(WatchFaceStyle.PEEK_OPACITY_MODE_TRANSLUCENT)
                     .setShowSystemUiTime(false)
                     .setShowUnreadCountIndicator(true)
-                    .setStatusBarGravity(Gravity.TOP | Gravity.LEFT)
-                    .setViewProtection(WatchFaceStyle.PROTECT_STATUS_BAR)
-                    .build();
+                    .setViewProtection(WatchFaceStyle.PROTECT_STATUS_BAR);
 
             // A style with short height notification cards.
-            shortCards = new WatchFaceStyle.Builder(WatchFaceService.this)
-                    .setAmbientPeekMode(WatchFaceStyle.AMBIENT_PEEK_MODE_VISIBLE)
+            WatchFaceStyle.Builder shortBuilder = new WatchFaceStyle.Builder(WatchFaceService.this);
+            shortBuilder.setAmbientPeekMode(WatchFaceStyle.AMBIENT_PEEK_MODE_VISIBLE)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
-                    .setHotwordIndicatorGravity(Gravity.BOTTOM | Gravity.RIGHT)
                     .setPeekOpacityMode(WatchFaceStyle.PEEK_OPACITY_MODE_TRANSLUCENT)
                     .setShowSystemUiTime(false)
                     .setShowUnreadCountIndicator(true)
-                    .setStatusBarGravity(Gravity.TOP | Gravity.LEFT)
-                    .setViewProtection(WatchFaceStyle.PROTECT_STATUS_BAR)
-                    .build();
+                    .setViewProtection(WatchFaceStyle.PROTECT_STATUS_BAR);
 
+            // Adjust the layout style for 12 vs 24 hour time
+            if (DateFormat.is24HourFormat(getApplicationContext())) {
+                timeSdf = new SimpleDateFormat(TIME_FORMAT_24);
+                variableBuilder.setStatusBarGravity(Gravity.TOP | Gravity.RIGHT);
+                variableBuilder.setHotwordIndicatorGravity(Gravity.TOP | Gravity.LEFT);
+                shortBuilder.setStatusBarGravity(Gravity.TOP | Gravity.RIGHT);
+                shortBuilder.setHotwordIndicatorGravity(Gravity.BOTTOM | Gravity.RIGHT);
+            } else {
+                timeSdf = new SimpleDateFormat(TIME_FORMAT_12);
+                variableBuilder.setStatusBarGravity(Gravity.TOP | Gravity.LEFT);
+                variableBuilder.setHotwordIndicatorGravity(Gravity.TOP | Gravity.LEFT);
+                shortBuilder.setStatusBarGravity(Gravity.TOP | Gravity.LEFT);
+                shortBuilder.setHotwordIndicatorGravity(Gravity.BOTTOM | Gravity.RIGHT);
+            }
+
+            // Build the styles
+            variableCards = variableBuilder.build();
+            shortCards = shortBuilder.build();
+
+            // Set the style accordingly
             boolean useShortCards = WatchFaceUtil
                     .getBoolean(getApplicationContext(), WatchFaceUtil.KEY_USE_SHORT_CARDS,
                             WatchFaceUtil.KEY_USE_SHORT_CARDS_DEF);
@@ -249,12 +264,6 @@ public class WatchFaceService extends CanvasWatchFaceService {
             } else {
                 Log.d(TAG, "Using variable notification cards");
                 setWatchFaceStyle(variableCards);
-            }
-
-            if (DateFormat.is24HourFormat(getApplicationContext())) {
-                timeSdf = new SimpleDateFormat(TIME_FORMAT_24);
-            } else {
-                timeSdf = new SimpleDateFormat(TIME_FORMAT_12);
             }
 
             //date formatters
