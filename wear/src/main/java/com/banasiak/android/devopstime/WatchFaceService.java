@@ -203,7 +203,13 @@ public class WatchFaceService extends CanvasWatchFaceService {
             periodSdf.setTimeZone(tz);
             timezoneSdf.setTimeZone(tz);
             dateStampSdf.setTimeZone(tz);
-            timeStampSdf.setTimeZone(tz);
+
+            if (alwaysUtc) {
+                timeStampSdf.setTimeZone(new SimpleTimeZone(0, "UTC"));
+            } else {
+                timeStampSdf.setTimeZone(tz);
+            }
+
             mDate.setTime(System.currentTimeMillis());
         }
 
