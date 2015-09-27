@@ -180,20 +180,20 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:paddingTop="10dp"
-                android:paddingBottom="20dp"
+                android:paddingBottom="30dp"
                 android:orientation="vertical">
-            <CheckBox
-                    android:id="@+id/alwaysUtcCheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="false"
-                    android:text="@string/always_show_utc"/>
             <CheckBox
                     android:id="@+id/useShortCardsCheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:checked="true"
                     android:text="@string/use_short_cards"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="16dp"
+                    android:text="@string/utc_toggle"/>
         </LinearLayout>
         <LinearLayout 
                 android:layout_width="wrap_content"

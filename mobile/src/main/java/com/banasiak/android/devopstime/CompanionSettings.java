@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Richard Banasiak
+ * Copyright (C) 2015 Richard Banasiak
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,10 +70,6 @@ public class CompanionSettings {
 
     public static final boolean KEY_EPOCH_SHOW_DEF = false;
 
-    public static final String KEY_ALWAYS_UTC = "always_utc";
-
-    public static final boolean KEY_ALWAYS_UTC_DEF = false;
-
     public static final String KEY_USE_SHORT_CARDS = "use_short_cards";
 
     public static final boolean KEY_USE_SHORT_CARDS_DEF = true;
@@ -94,14 +90,14 @@ public class CompanionSettings {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         final SharedPreferences.Editor editor = settings.edit();
         editor.putInt(key, value);
-        editor.commit();
+        editor.apply();
     }
 
     public static void setBoolean(final Context context, final String key, final boolean value) {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         final SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(key, value);
-        editor.commit();
+        editor.apply();
     }
 
     public static void resetAllPrefs(final Context context) {
@@ -109,7 +105,7 @@ public class CompanionSettings {
         final SharedPreferences.Editor editor = settings.edit();
 
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
 
 }

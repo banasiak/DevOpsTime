@@ -10,7 +10,7 @@
     <string name="epoch">Epoch</string>
     <string name="ambient">show ambient</string>
     <string name="interactive">show interactive</string>
-    <string name="always_show_utc">always show timestamp in UTC</string>
+    <string name="utc_toggle">FYI: Tap watch face to toggle UTC timestamp</string>
     <string name="use_short_cards">use short notification cards</string>
     <string name="apply">Apply Changes</string>
     <string name="reset">Reset to Default</string>

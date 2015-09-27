@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Richard Banasiak
+ * Copyright (C) 2015 Richard Banasiak
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,8 +64,6 @@ public class CompanionActivity extends Activity {
 
     private CheckBox epochCheckBox;
 
-    private CheckBox alwaysUtcCheckBox;
-
     private CheckBox useShortCardsCheckBox;
 
     private GoogleApiClient googleApiClient = null;
@@ -92,7 +90,6 @@ public class CompanionActivity extends Activity {
         timeCheckBox = (CheckBox) findViewById(R.id.timeCheckBox);
         epochCheckBox = (CheckBox) findViewById(R.id.epochCheckBox);
 
-        alwaysUtcCheckBox = (CheckBox) findViewById(R.id.alwaysUtcCheckBox);
         useShortCardsCheckBox = (CheckBox) findViewById(R.id.useShortCardsCheckBox);
 
         Button applyButton = (Button) findViewById(R.id.applyButton);
@@ -198,9 +195,6 @@ public class CompanionActivity extends Activity {
                 .setBoolean(this, CompanionSettings.KEY_TIME_DIM, timeCheckBox.isChecked());
         CompanionSettings
                 .setBoolean(this, CompanionSettings.KEY_EPOCH_DIM, epochCheckBox.isChecked());
-        CompanionSettings
-                .setBoolean(this, CompanionSettings.KEY_ALWAYS_UTC,
-                        alwaysUtcCheckBox.isChecked());
         CompanionSettings.setBoolean(this, CompanionSettings.KEY_USE_SHORT_CARDS,
                 useShortCardsCheckBox.isChecked());
     }
@@ -251,11 +245,6 @@ public class CompanionActivity extends Activity {
                 CompanionSettings
                         .getBoolean(this, CompanionSettings.KEY_EPOCH_DIM,
                                 CompanionSettings.KEY_EPOCH_SHOW_DEF));
-
-        alwaysUtcCheckBox.setChecked(
-                CompanionSettings
-                        .getBoolean(this, CompanionSettings.KEY_ALWAYS_UTC,
-                                CompanionSettings.KEY_ALWAYS_UTC_DEF));
         useShortCardsCheckBox.setChecked(CompanionSettings
                 .getBoolean(this, CompanionSettings.KEY_USE_SHORT_CARDS,
                         CompanionSettings.KEY_USE_SHORT_CARDS_DEF));
@@ -281,7 +270,6 @@ public class CompanionActivity extends Activity {
         boolean timeDim = timeCheckBox.isChecked();
         boolean epochDim = epochCheckBox.isChecked();
 
-        boolean alwaysUtc = alwaysUtcCheckBox.isChecked();
         boolean useShortCards = useShortCardsCheckBox.isChecked();
 
         PutDataMapRequest dataMap = PutDataMapRequest.create(CompanionSettings.PATH_WITH_FEATURE);
@@ -298,7 +286,6 @@ public class CompanionActivity extends Activity {
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_DATE_DIM, dateDim);
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_TIME_DIM, timeDim);
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_EPOCH_DIM, epochDim);
-        dataMap.getDataMap().putBoolean(CompanionSettings.KEY_ALWAYS_UTC, alwaysUtc);
         dataMap.getDataMap().putBoolean(CompanionSettings.KEY_USE_SHORT_CARDS, useShortCards);
 
         PutDataRequest request = dataMap.asPutDataRequest();

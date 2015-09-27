@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (C) 2014 Richard Banasiak
+ * Copyright (C) 2015 Richard Banasiak
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,6 +198,10 @@ public class WatchFaceService extends CanvasWatchFaceService {
         boolean mRegisteredTimeZoneReceiver = false;
 
 
+        private void updateTimeZone() {
+            updateTimeZone(TimeZone.getDefault());
+        }
+
         private void updateTimeZone(TimeZone tz) {
             timeSdf.setTimeZone(tz);
             periodSdf.setTimeZone(tz);
@@ -229,7 +233,9 @@ public class WatchFaceService extends CanvasWatchFaceService {
                     .setPeekOpacityMode(WatchFaceStyle.PEEK_OPACITY_MODE_TRANSLUCENT)
                     .setShowSystemUiTime(false)
                     .setShowUnreadCountIndicator(true)
-                    .setViewProtection(WatchFaceStyle.PROTECT_STATUS_BAR);
+                    .setViewProtectionMode(WatchFaceStyle.PROTECT_STATUS_BAR)
+                    .setAcceptsTapEvents(true);
+
 
             // A style with short height notification cards.
             WatchFaceStyle.Builder shortBuilder = new WatchFaceStyle.Builder(WatchFaceService.this);
@@ -239,7 +245,8 @@ public class WatchFaceService extends CanvasWatchFaceService {
                     .setPeekOpacityMode(WatchFaceStyle.PEEK_OPACITY_MODE_TRANSLUCENT)
                     .setShowSystemUiTime(false)
                     .setShowUnreadCountIndicator(true)
-                    .setViewProtection(WatchFaceStyle.PROTECT_STATUS_BAR);
+                    .setViewProtectionMode(WatchFaceStyle.PROTECT_STATUS_BAR)
+                    .setAcceptsTapEvents(true);
 
             // Adjust the layout style for 12 vs 24 hour time
             if (DateFormat.is24HourFormat(getApplicationContext())) {
@@ -323,8 +330,6 @@ public class WatchFaceService extends CanvasWatchFaceService {
                     WatchFaceUtil.KEY_TIME_DIM_DEF);
             epochDim = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_EPOCH_DIM,
                     WatchFaceUtil.KEY_EPOCH_DIM_DEF);
-            alwaysUtc = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_ALWAYS_UTC,
-                    WatchFaceUtil.KEY_ALWAYS_UTC_DEF);
 
             mDate = new Date();
         }
@@ -359,7 +364,7 @@ public class WatchFaceService extends CanvasWatchFaceService {
                 registerReceiver();
 
                 // Update time zone in case it changed while we weren't visible.
-                updateTimeZone(TimeZone.getDefault());
+                updateTimeZone();
 
             } else {
                 unregisterReceiver();
@@ -456,6 +461,20 @@ public class WatchFaceService extends CanvasWatchFaceService {
             cardPeekRectangle = rect;
 
             invalidate();
+        }
+
+        @Override
+        public void onTapCommand(int tapType, int x, int y, long eventTime) {
+            switch(tapType) {
+                case TAP_TYPE_TAP:
+                    // toggle UTC timezone
+                    alwaysUtc = !alwaysUtc;
+                    updateTimeZone();
+                    break;
+                default:
+                    super.onTapCommand(tapType, x, y, eventTime);
+                    break;
+            }
         }
 
         @Override
@@ -777,8 +796,6 @@ public class WatchFaceService extends CanvasWatchFaceService {
                     .getBoolean(WatchFaceUtil.KEY_TIME_DIM, WatchFaceUtil.KEY_TIME_DIM_DEF);
             epochDim = dataMap
                     .getBoolean(WatchFaceUtil.KEY_EPOCH_DIM, WatchFaceUtil.KEY_EPOCH_DIM_DEF);
-            alwaysUtc = dataMap
-                    .getBoolean(WatchFaceUtil.KEY_ALWAYS_UTC, WatchFaceUtil.KEY_ALWAYS_UTC_DEF);
 
             // notification card style
             boolean useShortCards = dataMap.getBoolean(WatchFaceUtil.KEY_USE_SHORT_CARDS,
