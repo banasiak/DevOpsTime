@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
  * Copyright (C) 2015 Richard Banasiak
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,6 +40,8 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
@@ -163,11 +164,11 @@ public class WatchFaceService extends CanvasWatchFaceService {
 
         Paint mEpochPaint;
 
-        int mInteractiveTextColor = getResources().getColor(R.color.white);
+        int mInteractiveTextColor = ContextCompat.getColor(getBaseContext(), R.color.white);
 
-        int mAmbientTextColor = getResources().getColor(R.color.silver);
+        int mAmbientTextColor = ContextCompat.getColor(getBaseContext(), R.color.silver);
 
-        int mBackgroundColor = getResources().getColor(R.color.black);
+        int mBackgroundColor = ContextCompat.getColor(getBaseContext(), R.color.black);
 
         float mXOffset;
 
@@ -745,26 +746,22 @@ public class WatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDataChanged(DataEventBuffer dataEvents) {
-            try {
-                for (DataEvent dataEvent : dataEvents) {
-                    if (dataEvent.getType() != DataEvent.TYPE_CHANGED) {
-                        continue;
-                    }
-
-                    DataItem dataItem = dataEvent.getDataItem();
-                    if (!dataItem.getUri().getPath().equals(WatchFaceUtil.PATH_WITH_FEATURE)) {
-                        continue;
-                    }
-
-                    DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
-                    DataMap config = dataMapItem.getDataMap();
-                    Log.d(TAG, "Config DataItem updated:" + config);
-                    if (config != null && !config.isEmpty()) {
-                        updateUiForConfigDataMap(config);
-                    }
+            for (DataEvent dataEvent : dataEvents) {
+                if (dataEvent.getType() != DataEvent.TYPE_CHANGED) {
+                    continue;
                 }
-            } finally {
-                dataEvents.close();
+
+                DataItem dataItem = dataEvent.getDataItem();
+                if (!dataItem.getUri().getPath().equals(WatchFaceUtil.PATH_WITH_FEATURE)) {
+                    continue;
+                }
+
+                DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
+                DataMap config = dataMapItem.getDataMap();
+                Log.d(TAG, "Config DataItem updated:" + config);
+                if (config != null && !config.isEmpty()) {
+                    updateUiForConfigDataMap(config);
+                }
             }
         }
 
@@ -871,7 +868,7 @@ public class WatchFaceService extends CanvasWatchFaceService {
         }
 
         @Override
-        public void onConnectionFailed(ConnectionResult result) {
+        public void onConnectionFailed(@NonNull ConnectionResult result) {
             Log.d(TAG, "onConnectionFailed: " + result);
         }
     }

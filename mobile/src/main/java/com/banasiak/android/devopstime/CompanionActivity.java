@@ -17,7 +17,7 @@
 package com.banasiak.android.devopstime;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.wearable.DataApi;
@@ -29,6 +29,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -149,16 +150,16 @@ public class CompanionActivity extends Activity {
         layout.addView(numberPicker, numPickerParams);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Font Size");
+        builder.setTitle(R.string.font_size);
         builder.setView(layout);
         builder.setCancelable(false);
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override public void onClick(DialogInterface dialog, int which) {
                 view.setText(String.valueOf(numberPicker.getValue()));
                 dialog.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             @Override public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
@@ -294,7 +295,7 @@ public class CompanionActivity extends Activity {
     }
 
     private void initializeWearable() {
-        if (GooglePlayServicesUtil.isGooglePlayServicesAvailable(this)
+        if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
                 == ConnectionResult.SUCCESS) {
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
@@ -310,7 +311,7 @@ public class CompanionActivity extends Activity {
                     .addOnConnectionFailedListener(
                             new GoogleApiClient.OnConnectionFailedListener() {
                                 @Override public void onConnectionFailed(
-                                        ConnectionResult result) {
+                                        @NonNull ConnectionResult result) {
 
                                 }
                             }

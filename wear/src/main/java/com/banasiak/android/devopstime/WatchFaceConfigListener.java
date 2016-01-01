@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
- * Copyright (C) 2014 Richard Banasiak
+ * Copyright (C) 2015 Richard Banasiak
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +24,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.concurrent.TimeUnit;
@@ -77,7 +77,7 @@ public class WatchFaceConfigListener extends WearableListenerService
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult result) {
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
         Log.d(TAG, "onConnectionFailed: " + result);
     }
 }

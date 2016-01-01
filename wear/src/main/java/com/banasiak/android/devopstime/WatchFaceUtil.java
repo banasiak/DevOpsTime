@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
- * Copyright (C) 2104 Richard Banasiak
+ * Copyright (C) 2015 Richard Banasiak
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +30,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 public final class WatchFaceUtil {
@@ -109,14 +109,14 @@ public final class WatchFaceUtil {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         final SharedPreferences.Editor editor = settings.edit();
         editor.putInt(key, value);
-        editor.commit();
+        editor.apply();
     }
 
     public static void setBoolean(final Context context, final String key, final boolean value) {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         final SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(key, value);
-        editor.commit();
+        editor.apply();
     }
 
     public static void resetAllPrefs(final Context context) {
@@ -124,7 +124,7 @@ public final class WatchFaceUtil {
         final SharedPreferences.Editor editor = settings.edit();
 
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
 
     // Callback interface to perform an action with the current config DataMap
@@ -142,7 +142,7 @@ public final class WatchFaceUtil {
         Wearable.NodeApi.getLocalNode(client).setResultCallback(
                 new ResultCallback<NodeApi.GetLocalNodeResult>() {
                     @Override
-                    public void onResult(NodeApi.GetLocalNodeResult getLocalNodeResult) {
+                    public void onResult(@NonNull NodeApi.GetLocalNodeResult getLocalNodeResult) {
                         String localNode = getLocalNodeResult.getNode().getId();
                         Uri uri = new Uri.Builder()
                                 .scheme("wear")
@@ -186,7 +186,7 @@ public final class WatchFaceUtil {
         Wearable.DataApi.putDataItem(googleApiClient, putDataMapRequest.asPutDataRequest())
                 .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
                     @Override
-                    public void onResult(DataApi.DataItemResult dataItemResult) {
+                    public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
                             Log.d(TAG, "putDataItem result status: " + dataItemResult.getStatus());
                         }
@@ -203,7 +203,7 @@ public final class WatchFaceUtil {
         }
 
         @Override
-        public void onResult(DataApi.DataItemResult dataItemResult) {
+        public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
             if (dataItemResult.getStatus().isSuccess()) {
                 if (dataItemResult.getDataItem() != null) {
                     DataItem configDataItem = dataItemResult.getDataItem();
