@@ -1,11 +1,11 @@
 <!--
-  ~ Copyright (C) 2015 Richard Banasiak
+  ~ Copyright (C) 2016 Richard Banasiak
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -223,8 +223,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical"
-            android:paddingBottom="30dp"
-            android:paddingTop="10dp">
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="10dp">
 
             <CheckBox
                 android:id="@+id/useShortCardsCheckBox"
@@ -234,11 +234,24 @@
                 android:checked="true"
                 android:text="@string/use_short_cards" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="16dp"
-                android:text="@string/utc_toggle" />
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                    android:layout_marginRight="16dp"
+                    android:text="@string/utc_spinner_hint" />
+
+                <Spinner
+                    android:id="@+id/timestampTzSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/tz_entries" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -252,7 +265,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="12dp"
                 android:text="@string/apply" />
 
             <Button
@@ -260,7 +272,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="12dp"
                 android:text="@string/reset" />
         </LinearLayout>
     </LinearLayout>

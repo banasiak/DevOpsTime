@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2015 Richard Banasiak
+ * Copyright (C) 2016 Richard Banasiak
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,30 @@ package com.banasiak.android.devopstime;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 public class CompanionSettings {
+
+    //Define the list of accepted constants
+    @IntDef({LOCAL, UTC, INTERACTIVE})
+
+    //Tell the compiler not to store annotation data in the .class file
+    @Retention(RetentionPolicy.SOURCE)
+
+    //Declare the intdef annotation
+    public @interface TimestampTimezone {
+
+    }
+
+    //Declare the constants
+    public static final int LOCAL = 0;
+
+    public static final int UTC = 1;
+
+    public static final int INTERACTIVE = 2;
 
     public static final String KEY_CLOCK_SIZE = "clock_size";
 
@@ -74,6 +96,10 @@ public class CompanionSettings {
 
     public static final boolean KEY_USE_SHORT_CARDS_DEF = true;
 
+    public static final String KEY_TIME_TZ = "timestamp_tz";
+
+    public static final int KEY_TIME_TZ_DEF = INTERACTIVE;
+
     public static final String PATH_WITH_FEATURE = "/DevOpsTime";
 
 
@@ -108,4 +134,7 @@ public class CompanionSettings {
         editor.apply();
     }
 
+    private CompanionSettings() {
+        // static class
+    }
 }

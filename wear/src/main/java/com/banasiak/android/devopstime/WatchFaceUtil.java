@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2015 Richard Banasiak
+ * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2016 Richard Banasiak
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,12 +31,34 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.util.Log;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 public final class WatchFaceUtil {
 
     private static final String TAG = WatchFaceUtil.class.getSimpleName();
+
+    //Define the list of accepted constants
+    @IntDef({LOCAL, UTC, INTERACTIVE})
+
+    //Tell the compiler not to store annotation data in the .class file
+    @Retention(RetentionPolicy.SOURCE)
+
+    //Declare the intdef annotation
+    public @interface TimestampTimezone {
+
+    }
+
+    //Declare the constants
+    public static final int LOCAL = 0;
+
+    public static final int UTC = 1;
+
+    public static final int INTERACTIVE = 2;
 
     public static final String KEY_CLOCK_SIZE = "clock_size";
 
@@ -85,13 +108,15 @@ public final class WatchFaceUtil {
 
     public static final boolean KEY_EPOCH_DIM_DEF = false;
 
-    public static final String KEY_ALWAYS_UTC = "always_utc";
-
-    public static final boolean KEY_ALWAYS_UTC_DEF = false;
-
     public static final String KEY_USE_SHORT_CARDS = "use_short_cards";
 
     public static final boolean KEY_USE_SHORT_CARDS_DEF = true;
+
+    public static final String KEY_TIME_TZ = "timestamp_tz";
+
+    public static final int KEY_TIME_TZ_DEF = INTERACTIVE;
+
+    public static final String KEY_TIME_TZ_INTERACTIVE_STATE = "timestamp_tz_interactive_state";
 
     public static final String PATH_WITH_FEATURE = "/DevOpsTime";
 
@@ -217,7 +242,7 @@ public final class WatchFaceUtil {
         }
     }
 
-    // singleton
     private WatchFaceUtil() {
+        // static class
     }
 }

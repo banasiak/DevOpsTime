@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2015 Richard Banasiak
+  ~ Copyright (C) 2016 Richard Banasiak
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 
 <resources>
     <string name="app_name">DevOps Time</string>
-    <string name="subtitle">RFC 2822 Timestamps for Android Wear</string>
+    <string name="subtitle">ISO 8601 Timestamps for Android Wear</string>
     <string name="clock">Clock</string>
     <string name="marker">AM/PM</string>
     <string name="timezone">TZ</string>
@@ -25,8 +25,7 @@
     <string name="time">Time</string>
     <string name="epoch">Epoch</string>
     <string name="ambient">show ambient</string>
-    <string name="interactive">show interactive</string>
-    <string name="utc_toggle">FYI: Tap watch face to toggle UTC timestamp</string>
+    <string name="utc_spinner_hint">Timestamp TZ</string>
     <string name="use_short_cards">use short notification cards</string>
     <string name="apply">Apply Changes</string>
     <string name="reset">Reset to Default</string>

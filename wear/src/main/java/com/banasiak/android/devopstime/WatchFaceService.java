@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2015 Richard Banasiak
+ * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2016 Richard Banasiak
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -188,7 +189,9 @@ public class WatchFaceService extends CanvasWatchFaceService {
 
         boolean epochDim;
 
-        boolean alwaysUtc;
+        boolean interactiveTzState;
+
+        int timestampTz;
 
         boolean mIsMute;
 
@@ -203,19 +206,34 @@ public class WatchFaceService extends CanvasWatchFaceService {
             updateTimeZone(TimeZone.getDefault());
         }
 
-        private void updateTimeZone(TimeZone tz) {
-            timeSdf.setTimeZone(tz);
-            periodSdf.setTimeZone(tz);
-            timezoneSdf.setTimeZone(tz);
-            dateStampSdf.setTimeZone(tz);
+        private void updateTimeZone(TimeZone localTz) {
+            timeSdf.setTimeZone(localTz);
+            periodSdf.setTimeZone(localTz);
+            timezoneSdf.setTimeZone(localTz);
+            dateStampSdf.setTimeZone(localTz);
 
-            if (alwaysUtc) {
-                timeStampSdf.setTimeZone(new SimpleTimeZone(0, "UTC"));
-            } else {
-                timeStampSdf.setTimeZone(tz);
-            }
+            updateTimestampTz(localTz);
 
             mDate.setTime(System.currentTimeMillis());
+        }
+
+        private void updateTimestampTz(TimeZone localTz) {
+            TimeZone utcTz = new SimpleTimeZone(0, "UTC");
+            switch (timestampTz) {
+                case WatchFaceUtil.LOCAL:
+                    timeStampSdf.setTimeZone(localTz);
+                    break;
+                case WatchFaceUtil.UTC:
+                    timeStampSdf.setTimeZone(utcTz);
+                    break;
+                case WatchFaceUtil.INTERACTIVE:
+                    if (interactiveTzState) {
+                        timeStampSdf.setTimeZone(utcTz);
+                    } else {
+                        timeStampSdf.setTimeZone(localTz);
+                    }
+                    break;
+            }
         }
 
         @Override
@@ -331,6 +349,9 @@ public class WatchFaceService extends CanvasWatchFaceService {
                     WatchFaceUtil.KEY_TIME_DIM_DEF);
             epochDim = WatchFaceUtil.getBoolean(context, WatchFaceUtil.KEY_EPOCH_DIM,
                     WatchFaceUtil.KEY_EPOCH_DIM_DEF);
+
+            timestampTz = WatchFaceUtil
+                    .getInt(context, WatchFaceUtil.KEY_TIME_TZ, WatchFaceUtil.KEY_TIME_TZ_DEF);
 
             mDate = new Date();
         }
@@ -468,9 +489,11 @@ public class WatchFaceService extends CanvasWatchFaceService {
         public void onTapCommand(int tapType, int x, int y, long eventTime) {
             switch(tapType) {
                 case TAP_TYPE_TAP:
-                    // toggle UTC timezone
-                    alwaysUtc = !alwaysUtc;
-                    updateTimeZone();
+                    if (timestampTz == WatchFaceUtil.INTERACTIVE) {
+                        // toggle UTC timezone
+                        interactiveTzState = !interactiveTzState;
+                        updateTimestampTz(TimeZone.getDefault());
+                    }
                     break;
                 default:
                     super.onTapCommand(tapType, x, y, eventTime);
@@ -746,22 +769,26 @@ public class WatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDataChanged(DataEventBuffer dataEvents) {
-            for (DataEvent dataEvent : dataEvents) {
-                if (dataEvent.getType() != DataEvent.TYPE_CHANGED) {
-                    continue;
-                }
+            try {
+                for (DataEvent dataEvent : dataEvents) {
+                    if (dataEvent.getType() != DataEvent.TYPE_CHANGED) {
+                        continue;
+                    }
 
-                DataItem dataItem = dataEvent.getDataItem();
-                if (!dataItem.getUri().getPath().equals(WatchFaceUtil.PATH_WITH_FEATURE)) {
-                    continue;
-                }
+                    DataItem dataItem = dataEvent.getDataItem();
+                    if (!dataItem.getUri().getPath().equals(WatchFaceUtil.PATH_WITH_FEATURE)) {
+                        continue;
+                    }
 
-                DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
-                DataMap config = dataMapItem.getDataMap();
-                Log.d(TAG, "Config DataItem updated:" + config);
-                if (config != null && !config.isEmpty()) {
-                    updateUiForConfigDataMap(config);
+                    DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
+                    DataMap config = dataMapItem.getDataMap();
+                    Log.d(TAG, "Config DataItem updated:" + config);
+                    if (config != null && !config.isEmpty()) {
+                        updateUiForConfigDataMap(config);
+                    }
                 }
+            } finally {
+                dataEvents.close();
             }
         }
 
@@ -798,6 +825,9 @@ public class WatchFaceService extends CanvasWatchFaceService {
             boolean useShortCards = dataMap.getBoolean(WatchFaceUtil.KEY_USE_SHORT_CARDS,
                     WatchFaceUtil.KEY_USE_SHORT_CARDS_DEF);
 
+            // interactive timezone toggling
+            timestampTz = dataMap.getInt(WatchFaceUtil.KEY_TIME_TZ, WatchFaceUtil.KEY_TIME_TZ_DEF);
+
             // update the style accordingly
             if (useShortCards) {
                 Log.d(TAG, "Using short notification cards");
@@ -817,11 +847,7 @@ public class WatchFaceService extends CanvasWatchFaceService {
             mEpochPaint.setTextSize(epochSize * density);
 
             // show the timestamp in UTC timezone if appropriate
-            if (alwaysUtc) {
-                timeStampSdf.setTimeZone(new SimpleTimeZone(0, "UTC"));
-            } else {
-                timeStampSdf.setTimeZone(TimeZone.getDefault());
-            }
+            updateTimestampTz(TimeZone.getDefault());
 
             // redraw the canvas
             invalidate();
@@ -850,7 +876,10 @@ public class WatchFaceService extends CanvasWatchFaceService {
             WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_DATE_DIM, dateDim);
             WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_TIME_DIM, timeDim);
             WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_EPOCH_DIM, epochDim);
-            WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_ALWAYS_UTC, alwaysUtc);
+            WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_TIME_TZ_INTERACTIVE_STATE,
+                    interactiveTzState);
+
+            WatchFaceUtil.setInt(context, WatchFaceUtil.KEY_TIME_TZ, timestampTz);
 
             WatchFaceUtil.setBoolean(context, WatchFaceUtil.KEY_USE_SHORT_CARDS, useShortCards);
         }
